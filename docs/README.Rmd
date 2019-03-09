@@ -1,0 +1,93 @@
+---
+title: "README"
+author: "Raul JTA"
+date: "03/08/2019"
+output: github_document
+bibliography: bayes.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##  Overview
+
+Bayesian inference is an alternative, but principled approach to inference which seamlessly combines new evidence with prior beliefs. Instead of constructing the likelihood and deriving point and interval estimates like any frequentist would do, bayesians shift their attention onto the posterior distribution $p(\theta|y)$ when it is time to perform inference. At its core, their approach relies on specifying some likelihood and prior, which through derivation or algorithms leads to the desired posterior. This is the key idea: $p(\theta|y) \propto p(y|\theta)p(\theta)$. 
+
+<p align="center"><img src="images/trace.png" width="70%"></p>
+
+
+```{r chunk, echo=FALSE}
+
+```
+
+## Technical
+
+All coding including this README file were generated through `R` and `RMarkdown`. In addition, this is a `packrat` project, which means that you may have to install the package `packrat` in an effort to ensure further reproducibility, a seed was set on the fitting algorithms.
+
+## Code overview
+
+Coding in bayesian inference comes surprisingly easy through the `rstanarm` which prepends `stan_` to many familiar model calls, e.g. `stan_lmer()`. There is much flexibility in bayesian inference that is not directly included. For likelihoods and priors not aleady included in the `rstanarm` package, you can write a custom `stan` file and load it into use within R through the `rstan` package. For even more complex models, R can interact with `JAGS` software to construct models such as a functional bayesian model. In contrast to this, or even the [examples found here](http://mc-stan.org/rstanarm/articles/index.html), the following example we provide is very easy, hopefully instructive, and consists of two key parts:
+
+1. __Fitting bayesian model__ - fit a negative binomial model through `rstanarm::stan_glm()` on a small dataset; for instruction we also constrast bayesian estimates against frequentist estimates.  
+2. __Visualizing estimates__ - construct trace plot for diagostics, density plots to view the distribution of steps for the multiple MCMC chains, and caterpillar plots to simply view estiamtes all through the `ggmcmc` package.
+
+## Bayesian overview
+
+Prior to introducing the workflow common to all bayesian analyses, we'll touch on the utilities and some theory, most of it coming from @bayes. Complex models, robust estimation, sequential analyses, and intuitive interpretations are all properties which make bayesian inference the ideal option in certain scenarios.  Here are those attrative properties in greater detail:
+
+1. __Common-sense interpretations__- of statistical conclusions; most notably its interpretation of "credible" intervals.
+
+2. __Bayesian updating__- iterative application of Bayes' rule enables one to update previous conclusions with new data; sequential analyses are done this way with relative ease.
+
+3. __Robustness__- through an informative prior, estimates are robust to small and low-quality samples.
+
+4. __Accomodates complex models__- through an algorithmic estimation procedure (i.e. sampling from the posterior), a wide variety of complex modeling scenarios such as hierarchical and missing data problems all fall under one encompassing estimation approach. 
+
+A common misconception is that bayesian inference assumes that parameters are random and data fixed, which is the opposite of what frequentists assume; but the truth is deeper than that. Both schools of thought are in fact united in their attempt to learn about a parameter $\theta$ which represents some real phenomena out in the world. To flesh out this idea, consider this illuminating quote by @greenland, reproduced in full:
+
+>
+It is often said (incorrectly) that ‘parameters are treated as fixed by the frequentist but as random by the Bayesian’. For frequentists and Bayesians alike, the value of a parameter may have been fixed from the start or may have been generated from a physically random mechanism. In either case, both suppose it has taken on some fixed value that we would like to know. The Bayesian uses formal probability models to express personal uncertainty about that value. The ‘randomness’ in these models represents personal uncertainty about the parameter’s value; it is not a property of the parameter (although we should hope it accurately reflects properties of the mechanisms that produced the parameter).
+
+In other words, frequentists and bayesians alike are looking to extract insight about some parameter $\theta$ which corresponds to some tangible thing _out in the world_, which may or may not be fixed in reality. Taking one approach over another is not a comment on whether the phenomena itself is fixed, but merely expresses a preference in dealing with the uncertainty around the value of interest. Philosophy aside, here are some helpful notes on priors and posteriors.
+
+###Priors
+
+Prior distributions represent subjective prior beliefs on how the target parameter might be distributed. They may contain differing levels of information relative to the likelihood (e.g. strongly informative, weakly informative), and are additionally either proper, or inproper. There are three primary types:
+
+1. __Conjugate Priors__- analytically convenient priors which, when paired with data of some given distribution, _always_ yield a posterior within the same family of the prior distribution. In updating scenarios (i.e. dynamic studies), these priors can be nicely interpreted as prior data. An exhaustive list of conjugate priors is nicely included in @priors
+
+2. __Noninformative Priors__- unassuming prior which reflects trivial or non-existent information. Intuitive choice is a flat prior ($U(0,1)$), which equally weights all the possible parameter values. More rigorously, Jeffrey's prior uses an invariance argument for strictly defining non-informative prior distributions of $\theta$.
+
+3. __Improper Priors__- prior which either depends on the data, or does not integrate well; some noninformative priors are improper.
+
+
+###Posteriors
+
+Posteriors reflect the distribution of $\theta$ given some data, i.e. $p(\theta|y)$. All inferential quantities "fall out of the posterior":
+
+1. __Point Estimates__- summary value of $\theta$ based on $p(\theta|y)$, e.g. mean, median, mode ( _note: all of these are the same if distribution is symmetric_). To obtain these, we must minimize some loss function, e.g. mean minimizes $L^2$ loss, median the $L^1$ loss,   and mode the 0-1 loss.
+
+2. __Interval Estimates__- 100%(1-$\alpha$) credible set for $\theta$ is given by some subset $C\in \Theta \ sit.  \ 1-\alpha\leq\int_Cp(\theta|y)d\theta$. Mathematically put, the attracive interpretation of the credible interval is that $P(\theta\in C)\geq0.95$.
+
+<p align="center"><img src="images/caterpillar.png" width="40%"></p>
+
+Above we see a caterpillar plot illustrating point estimates and corresponding confidence intervals, and a dotted line at x = 0. With the basics in tow, we now introduce the workflow common to bayesian analysis.
+
+##Bayesian workflow
+
+1. __Specify full probability model__ - identify an appropritate model for the relationship between outcome of interest $\mathbf{y}$, and a set of covariates $\mathbf{X}$.
+
+2. __Propose prior beliefs__ - identify distributions for the parameters (joint or marginal) which represent prior information, specifically suggesting the distribution of their probability.
+
+3. __Work on the posterior__ - with a likelihood and prior in place, now is the time to extract (through derivation or sampling algorithms) and analyze the posterior distribution.
+
+4. __Evaluate model__ - evaluate model fit, implications, and sensitivity through scrutiny and sensitivity analyses (for violated assumptions).
+
+Notice that only step 2 and 3 deviate from the typical frequentist analysis. At the end of our analysis, we can create a density plot to help visualize how different methods would yield different point and interval estimates, for each parameter and across the all of the chains.
+
+<p align="center"><img src="images/density.png" width="70%"></p>
+
+It is remarkable and slightly puzzling that one can start at the same likelihood, proceed in a completely new manner to perform inference, and yet still arrive at practically identical points. Not only has bayesian inference taken root in a wide array of fields, it has truly _cracked open_ the core of statistics at a methodological and conceptual level. Its existence continues to breathe life and ingenuity into the science of variation some of us practice as statisticians.
+
+## References
