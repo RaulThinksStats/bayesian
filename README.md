@@ -11,6 +11,7 @@ Bayesian inference is an alternative, but principled approach to inference which
 <p align="center">
 <img src="docs/images/trace.png" width="70%">
 </p>
+
 Technical
 ---------
 
@@ -64,6 +65,7 @@ Posteriors reflect the distribution of *θ* given some data, i.e. *p*(*θ*|*y*).
 <p align="center">
 <img src="docs/images/caterpillar.png" width="40%">
 </p>
+
 Above we see a caterpillar plot illustrating point estimates and corresponding confidence intervals, and a dotted line at x = 0. With the basics in tow, we now introduce the workflow common to bayesian analysis.
 
 Bayesian workflow
@@ -82,6 +84,7 @@ Notice that only step 2 and 3 deviate from the typical frequentist analysis. At 
 <p align="center">
 <img src="docs/images/density.png" width="70%">
 </p>
+
 It is remarkable and slightly puzzling that one can start at the same likelihood, proceed in a completely new manner to perform inference, and yet still arrive at practically identical points. Not only has bayesian inference taken root in a wide array of fields, it has truly *cracked open* the core of statistics at a methodological and conceptual level. Its existence continues to breathe life and ingenuity into the science of variation some of us practice as statisticians.
 
 References
